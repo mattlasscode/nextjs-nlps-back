@@ -3,6 +3,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import OpenAI from 'openai'
 import { v4 as uuidv4 } from 'uuid'
+import axios from 'axios'
+import * as cheerio from 'cheerio'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -12,23 +14,82 @@ declare global {
 }
 globalThis.memoryDB = globalThis.memoryDB || [];
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { items } = req.body
-  if (!Array.isArray(items)) return res.status(400).json({ error: 'Expected items array' })
+interface Book {
+  title: string;
+  description: string;
+  url?: string;
+  image?: string;
+}
 
-  const embeddings = await openai.embeddings.create({
-    model: 'text-embedding-3-small',
-    input: items.map(i => i.title),
-  })
+async function scrapeBooks(): Promise<Book[]> {
+  try {
+    const response = await axios.get('https://www.gibert.com/livres/livres-nouveaute-7702.html')
+    const $ = cheerio.load(response.data)
+    const books: Book[] = []
 
-  items.forEach((item, i) => {
-    if (!globalThis.memoryDB) return;
-    globalThis.memoryDB.push({
-      id: uuidv4(),
-      ...item,
-      embedding: embeddings.data[i].embedding,
+    // Get the first 10 books
+    $('.product-item').slice(0, 10).each((_, element) => {
+      const title = $(element).find('.product-name a').text().trim()
+      let description = $(element).find('.product-description').text().trim()
+      
+      // If no description, use category + price as fallback
+      if (!description) {
+        const category = $(element).find('.product-category').text().trim()
+        const price = $(element).find('.price').text().trim()
+        description = `${category} - ${price}`
+      }
+
+      const url = $(element).find('.product-name a').attr('href')
+      const image = $(element).find('img').attr('src')
+
+      books.push({
+        title,
+        description,
+        url: url ? `https://www.gibert.com${url}` : undefined,
+        image
+      })
     })
-  })
 
-  res.status(200).json({ success: true, count: items.length })
+    return books
+  } catch (error) {
+    console.error('Error scraping books:', error)
+    throw error
+  }
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    // Scrape books from the website
+    const books = await scrapeBooks()
+
+    // Create embeddings for each book
+    const embedded = await Promise.all(books.map(async (book) => {
+      const text = `${book.title} ${book.description}`
+      const embeddingRes = await openai.embeddings.create({
+        model: 'text-embedding-3-small',
+        input: text,
+      })
+
+      return {
+        id: uuidv4(),
+        ...book,
+        embedding: embeddingRes.data[0].embedding,
+      }
+    }))
+
+    // Store in memory
+    globalThis.memoryDB = embedded
+
+    res.status(200).json({ 
+      success: true, 
+      count: embedded.length,
+      books: embedded.map(({ title, description, url, image }) => ({ title, description, url, image }))
+    })
+  } catch (error) {
+    console.error('Error in load handler:', error)
+    res.status(500).json({ 
+      error: 'Failed to load books',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
 }
