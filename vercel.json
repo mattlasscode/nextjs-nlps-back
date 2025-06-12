@@ -1,0 +1,11 @@
+{
+  "routes": [
+    {
+      "src": "/api/load",
+      "methods": ["GET", "POST"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*"
+      }
+    }
+  ]
+}
