@@ -1,4 +1,5 @@
 // pages/api/load.ts
+// Updated for Vercel deployment - OpenAI SDK v4+ and UUID support
 import type { NextApiRequest, NextApiResponse } from 'next'
 import OpenAI from 'openai'
 import { v4 as uuidv4 } from 'uuid'
