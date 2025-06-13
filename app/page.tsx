@@ -63,15 +63,26 @@ export default function Home() {
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Transform your e-commerce search with AI-powered natural language processing
           </p>
-          <Link href="/subscribe">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold"
-            >
-              Get Started
-            </motion.button>
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <Link href="/subscribe">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold"
+              >
+                Get Started
+              </motion.button>
+            </Link>
+            <Link href="https://nextjs-nlps-front.vercel.app" target="_blank">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-colors"
+              >
+                View Demo
+              </motion.button>
+            </Link>
+          </div>
         </motion.div>
       </section>
 
