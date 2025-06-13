@@ -187,6 +187,65 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Test Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              Try It Now
+            </h2>
+            <p className="mt-4 text-lg text-gray-600">
+              Test the NLP Search on your website instantly
+            </p>
+          </div>
+
+          <div className="mt-12 max-w-xl mx-auto">
+            <div className="bg-white shadow sm:rounded-lg">
+              <div className="px-4 py-5 sm:p-6">
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="storeUrl" className="block text-sm font-medium text-gray-700">
+                      Your Store URL
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="storeUrl"
+                        id="storeUrl"
+                        placeholder="https://your-store.com"
+                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = (document.getElementById('storeUrl') as HTMLInputElement).value;
+                        if (!url) {
+                          alert('Please enter your store URL');
+                          return;
+                        }
+                        const proxyUrl = `https://nextjs-nlps-back.vercel.app/api/proxy?url=${encodeURIComponent(url)}&apiKey=test-key`;
+                        window.open(proxyUrl, '_blank');
+                      }}
+                      className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      Test Search Bar
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-gray-500">
+                    Enter your store URL and click the button to see the search bar in action. No installation required!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-gray-800">
         <div className="max-w-6xl mx-auto text-center text-gray-400">
