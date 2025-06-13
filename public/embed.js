@@ -80,7 +80,7 @@
           resultsContainer.style.display = 'block';
           resultsContainer.innerHTML = '';
 
-          const response = await fetch(`${window.location.origin}/api/search`, {
+          const response = await fetch('https://nextjs-nlps-back.vercel.app/api/search', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
