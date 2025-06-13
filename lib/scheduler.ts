@@ -46,7 +46,7 @@ export async function runScheduledTask(taskId: string) {
         },
         update: {
           description: product.description,
-          price: product.price,
+          price: product.price || '',
           image: product.image,
           sku: product.sku,
           embedding,
@@ -55,7 +55,7 @@ export async function runScheduledTask(taskId: string) {
           title: product.title,
           description: product.description,
           url: product.url || '',
-          price: product.price,
+          price: product.price || '',
           image: product.image,
           sku: product.sku,
           embedding,
