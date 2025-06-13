@@ -59,6 +59,7 @@ export async function runScheduledTask(taskId: string) {
           image: product.image,
           sku: product.sku,
           embedding,
+          storeId: task.config.storeId,
         },
       });
     }

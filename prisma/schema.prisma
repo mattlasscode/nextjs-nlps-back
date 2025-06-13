@@ -28,11 +28,13 @@ model Product {
   price       String
   url         String
   image       String?
+  sku         String?
   embedding   Float[]
   store       Store    @relation(fields: [storeId], references: [id])
   storeId     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@unique([title, url])
   @@index([storeId])
 } 

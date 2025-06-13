@@ -13,6 +13,7 @@ export interface Product {
 export interface ScraperConfig {
   name: string;
   baseUrl: string;
+  storeId: string;
   selectors: {
     productContainer: string;
     title: string;
@@ -102,6 +103,7 @@ export const scraperConfigs: Record<string, ScraperConfig> = {
   gibert: {
     name: 'Gibert',
     baseUrl: 'https://www.gibert.com',
+    storeId: 'gibert-store',
     selectors: {
       productContainer: '.product-item',
       title: '.product-name a',
@@ -120,6 +122,7 @@ export const scraperConfigs: Record<string, ScraperConfig> = {
   shopify: {
     name: 'Shopify',
     baseUrl: '', // Will be set dynamically
+    storeId: 'shopify-store',
     selectors: {
       productContainer: '.product-item',
       title: '.product-title',
