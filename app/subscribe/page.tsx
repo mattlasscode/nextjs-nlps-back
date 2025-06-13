@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface Plan {
   id: string;
   name: string;
-  price: string;
+  price: number;
   features: string[];
   maxProducts: number;
   maxStores: number;
@@ -17,12 +16,12 @@ const plans: Plan[] = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '$49',
+    price: 29,
     features: [
       'Up to 1,000 products',
-      'Basic search features',
-      'Email support',
-      '1 store'
+      '1 store',
+      'Basic search analytics',
+      'Email support'
     ],
     maxProducts: 1000,
     maxStores: 1
@@ -30,12 +29,13 @@ const plans: Plan[] = [
   {
     id: 'professional',
     name: 'Professional',
-    price: '$99',
+    price: 99,
     features: [
       'Up to 10,000 products',
-      'Advanced search features',
+      '3 stores',
+      'Advanced search analytics',
       'Priority support',
-      '3 stores'
+      'Custom styling'
     ],
     maxProducts: 10000,
     maxStores: 3
@@ -43,12 +43,14 @@ const plans: Plan[] = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 'Custom',
+    price: 299,
     features: [
       'Unlimited products',
-      'Custom features',
+      'Unlimited stores',
+      'Advanced analytics',
       '24/7 support',
-      'Unlimited stores'
+      'Custom integration',
+      'Dedicated account manager'
     ],
     maxProducts: -1,
     maxStores: -1
@@ -56,147 +58,164 @@ const plans: Plan[] = [
 ];
 
 export default function Subscribe() {
-  const router = useRouter();
-  const [selectedPlan, setSelectedPlan] = useState<string>('');
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [storeUrl, setStoreUrl] = useState('');
-  const [step, setStep] = useState<'plan' | 'details' | 'success'>('plan');
+  const [step, setStep] = useState(1);
   const [apiKey, setApiKey] = useState('');
+  const [isClient, setIsClient] = useState(false);
 
-  const handlePlanSelect = (planId: string) => {
-    setSelectedPlan(planId);
-    setStep('details');
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handlePlanSelect = (plan: Plan) => {
+    setSelectedPlan(plan);
+    setStep(2);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleStoreSubmit = () => {
     // Generate a mock API key
     const mockApiKey = `nlp_${Math.random().toString(36).substring(2, 15)}`;
     setApiKey(mockApiKey);
-    
-    // Simulate API call to create store
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setStep('success');
+    setStep(3);
   };
 
-  const embedCode = `<script src="${window.location.origin}/embed.js" data-api-key="${apiKey}"></script>`;
+  const getEmbedCode = () => {
+    if (!isClient) return '';
+    return `<script src="${window.location.origin}/embed.js"></script>
+<script>
+  window.NLPSearch.init({
+    apiKey: '${apiKey}',
+    storeUrl: '${storeUrl}'
+  });
+</script>`;
+  };
 
-  if (step === 'success') {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white py-20 px-4">
-        <div className="max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gray-800 p-8 rounded-lg"
-          >
-            <h1 className="text-3xl font-bold mb-6">Setup Complete!</h1>
-            <p className="text-gray-300 mb-6">
-              Your store has been successfully set up. Here's your embed code:
-            </p>
-            <div className="bg-gray-900 p-4 rounded mb-6">
-              <pre className="text-sm overflow-x-auto">
-                <code>{embedCode}</code>
-              </pre>
-            </div>
-            <p className="text-gray-300 mb-6">
-              Add this code to your website's HTML, just before the closing &lt;/body&gt; tag.
-            </p>
-            <button
-              onClick={() => navigator.clipboard.writeText(embedCode)}
-              className="bg-purple-500 text-white px-6 py-2 rounded hover:bg-purple-600 transition-colors"
-            >
-              Copy Code
-            </button>
-          </motion.div>
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+            Choose Your Plan
+          </h1>
+          <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
+            Select the perfect plan for your business needs
+          </p>
         </div>
-      </div>
-    );
-  }
 
-  if (step === 'details') {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white py-20 px-4">
-        <div className="max-w-2xl mx-auto">
+        {step === 1 && (
+          <div className="mt-12 grid gap-8 lg:grid-cols-3">
+            {plans.map((plan) => (
+              <motion.div
+                key={plan.id}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white rounded-lg shadow-lg overflow-hidden"
+              >
+                <div className="px-6 py-8">
+                  <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                  <p className="mt-4 text-4xl font-extrabold text-gray-900">
+                    ${plan.price}
+                    <span className="text-base font-medium text-gray-500">/month</span>
+                  </p>
+                  <ul className="mt-6 space-y-4">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <p className="ml-3 text-base text-gray-700">{feature}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => handlePlanSelect(plan)}
+                    className="mt-8 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    Select Plan
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {step === 2 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gray-800 p-8 rounded-lg"
+            className="mt-12 max-w-lg mx-auto"
           >
-            <h1 className="text-3xl font-bold mb-6">Store Details</h1>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <label className="block text-gray-300 mb-2">Store URL</label>
-                <input
-                  type="url"
-                  value={storeUrl}
-                  onChange={(e) => setStoreUrl(e.target.value)}
-                  placeholder="https://your-store.com"
-                  required
-                  className="w-full px-4 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-purple-500 focus:outline-none"
-                />
-              </div>
-              <div className="flex justify-between">
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Enter Your Store Details</h2>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="storeUrl" className="block text-sm font-medium text-gray-700">
+                    Store URL
+                  </label>
+                  <input
+                    type="url"
+                    id="storeUrl"
+                    value={storeUrl}
+                    onChange={(e) => setStoreUrl(e.target.value)}
+                    placeholder="https://your-store.com"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
                 <button
-                  type="button"
-                  onClick={() => setStep('plan')}
-                  className="text-gray-300 hover:text-white"
-                >
-                  ← Back to Plans
-                </button>
-                <button
-                  type="submit"
-                  className="bg-purple-500 text-white px-6 py-2 rounded hover:bg-purple-600 transition-colors"
+                  onClick={handleStoreSubmit}
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
                 >
                   Complete Setup
                 </button>
               </div>
-            </form>
+            </div>
           </motion.div>
-        </div>
-      </div>
-    );
-  }
+        )}
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white py-20 px-4">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-16">Choose Your Plan</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {plans.map((plan) => (
-            <motion.div
-              key={plan.id}
-              whileHover={{ y: -5 }}
-              className={`p-6 rounded-lg ${
-                selectedPlan === plan.id
-                  ? 'bg-gradient-to-b from-purple-500 to-blue-500'
-                  : 'bg-gray-800'
-              }`}
-            >
-              <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-              <div className="text-4xl font-bold mb-6">{plan.price}</div>
-              <ul className="space-y-3 mb-6">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center">
-                    <span className="mr-2">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => handlePlanSelect(plan.id)}
-                className={`w-full py-2 rounded ${
-                  selectedPlan === plan.id
-                    ? 'bg-white text-purple-500'
-                    : 'bg-purple-500 text-white'
-                }`}
-              >
-                Select Plan
-              </button>
-            </motion.div>
-          ))}
-        </div>
+        {step === 3 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-12 max-w-2xl mx-auto"
+          >
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="text-center">
+                <svg className="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <h2 className="mt-4 text-2xl font-bold text-gray-900">Setup Complete!</h2>
+                <p className="mt-2 text-gray-600">Your API key has been generated successfully.</p>
+              </div>
+
+              <div className="mt-8 space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">Your API Key</h3>
+                  <div className="mt-2 p-4 bg-gray-50 rounded-md">
+                    <code className="text-sm text-gray-800">{apiKey}</code>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">Embed Code</h3>
+                  <div className="mt-2">
+                    <pre className="p-4 bg-gray-50 rounded-md overflow-x-auto">
+                      <code className="text-sm text-gray-800">{getEmbedCode()}</code>
+                    </pre>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm text-gray-500">
+                    Copy and paste this code into your website's HTML, just before the closing &lt;/body&gt; tag.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );
