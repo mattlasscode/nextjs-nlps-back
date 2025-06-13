@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaSearch, FaCode, FaRocket, FaShieldAlt } from 'react-icons/fa';
 import { VisualEffect } from '../components/VisualEffects';
+import Link from 'next/link';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -62,13 +63,15 @@ export default function Home() {
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Transform your e-commerce search with AI-powered natural language processing
           </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold"
-          >
-            Get Started
-          </motion.button>
+          <Link href="/subscribe">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold"
+            >
+              Get Started
+            </motion.button>
+          </Link>
         </motion.div>
       </section>
 
@@ -158,6 +161,17 @@ export default function Home() {
                 'Unlimited stores'
               ]}
             />
+          </div>
+          <div className="text-center mt-12">
+            <Link href="/subscribe">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold"
+              >
+                Choose Your Plan
+              </motion.button>
+            </Link>
           </div>
         </div>
       </section>

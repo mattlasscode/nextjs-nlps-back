@@ -48,6 +48,17 @@
         z-index: 1000;
       `;
 
+      // Create loading indicator
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.className = 'nlp-search-loading';
+      loadingIndicator.style.cssText = `
+        display: none;
+        text-align: center;
+        padding: 20px;
+        color: #666;
+      `;
+      loadingIndicator.innerHTML = 'Searching...';
+
       // Add event listeners
       let debounceTimer;
       searchInput.addEventListener('input', function(e) {
@@ -65,7 +76,11 @@
       // Search function
       async function searchProducts(query) {
         try {
-          const response = await fetch('/api/search', {
+          loadingIndicator.style.display = 'block';
+          resultsContainer.style.display = 'block';
+          resultsContainer.innerHTML = '';
+
+          const response = await fetch(`${window.location.origin}/api/search`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -74,10 +89,21 @@
             body: JSON.stringify({ query })
           });
 
+          if (!response.ok) {
+            throw new Error('Search request failed');
+          }
+
           const results = await response.json();
           displayResults(results);
         } catch (error) {
           console.error('Search error:', error);
+          resultsContainer.innerHTML = `
+            <div class="p-4 text-red-500">
+              An error occurred while searching. Please try again.
+            </div>
+          `;
+        } finally {
+          loadingIndicator.style.display = 'none';
         }
       }
 
@@ -109,6 +135,7 @@
       // Add elements to container
       container.appendChild(searchInput);
       container.appendChild(resultsContainer);
+      container.appendChild(loadingIndicator);
 
       // Close results when clicking outside
       document.addEventListener('click', function(e) {
