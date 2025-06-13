@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
+// Force redeploy: trivial comment for Vercel cache busting
+
 export async function GET(request: NextRequest) {
   try {
     // Get the target URL from the query parameters
