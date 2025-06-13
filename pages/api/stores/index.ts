@@ -21,7 +21,7 @@ export default async function handler(
       const apiKey = crypto.randomBytes(32).toString('hex');
 
       // Create store
-      const store = await prisma.ecommerceStore.create({
+      const store = await prisma.store.create({
         data: {
           name,
           domain,
@@ -49,7 +49,7 @@ export default async function handler(
         return res.status(401).json({ error: 'API key required' });
       }
 
-      const store = await prisma.ecommerceStore.findUnique({
+      const store = await prisma.store.findUnique({
         where: { apiKey: apiKey as string },
         include: {
           products: {
