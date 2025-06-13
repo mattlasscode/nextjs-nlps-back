@@ -1,103 +1,219 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { FaSearch, FaCode, FaRocket, FaShieldAlt } from 'react-icons/fa';
+import { VisualEffect } from '../components/VisualEffects';
+
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+interface PricingCardProps {
+  title: string;
+  price: string;
+  features: string[];
+  highlighted?: boolean;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-inter)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-roboto-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-roboto-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [isCopied, setIsCopied] = useState(false);
+  const [currentEffect, setCurrentEffect] = useState<'liquid' | 'dream' | 'psywave' | 'inkstorm' | 'flame' | 'spectral' | 'biolume' | 'neuron' | 'organic' | 'synaptic'>('liquid');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const embedCode = `<script src="https://your-domain.com/embed.js" data-api-key="YOUR_API_KEY"></script>`;
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(embedCode);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  // Change effect every 5 seconds
+  useEffect(() => {
+    const effects = ['liquid', 'dream', 'psywave', 'inkstorm', 'flame', 'spectral', 'biolume', 'neuron', 'organic', 'synaptic'] as const;
+    const interval = setInterval(() => {
+      setCurrentEffect(effects[Math.floor(Math.random() * effects.length)]);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+      <VisualEffect type={currentEffect} />
+
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent" />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 text-center px-4"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+          <h1 className="text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+            NLP Search
+          </h1>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            Transform your e-commerce search with AI-powered natural language processing
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold"
+          >
+            Get Started
+          </motion.button>
+        </motion.div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16">Features</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <FeatureCard
+              icon={<FaSearch className="w-8 h-8" />}
+              title="Natural Language Search"
+              description="Let your customers search using everyday language"
+            />
+            <FeatureCard
+              icon={<FaCode className="w-8 h-8" />}
+              title="Easy Integration"
+              description="One line of code to add powerful search to your store"
+            />
+            <FeatureCard
+              icon={<FaRocket className="w-8 h-8" />}
+              title="Lightning Fast"
+              description="Instant results with vector-based search"
+            />
+            <FeatureCard
+              icon={<FaShieldAlt className="w-8 h-8" />}
+              title="Secure & Reliable"
+              description="Enterprise-grade security and 99.9% uptime"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Embed Code Section */}
+      <section className="py-20 px-4 bg-gray-900">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16">Get Started in Minutes</h2>
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Embed Code</h3>
+              <button
+                onClick={copyToClipboard}
+                className="text-sm bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+              >
+                {isCopied ? 'Copied!' : 'Copy Code'}
+              </button>
+            </div>
+            <pre className="bg-gray-900 p-4 rounded overflow-x-auto">
+              <code className="text-gray-300">{embedCode}</code>
+            </pre>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16">Simple Pricing</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <PricingCard
+              title="Starter"
+              price="$49"
+              features={[
+                'Up to 1,000 products',
+                'Basic search features',
+                'Email support',
+                '1 store'
+              ]}
+            />
+            <PricingCard
+              title="Professional"
+              price="$99"
+              features={[
+                'Up to 10,000 products',
+                'Advanced search features',
+                'Priority support',
+                '3 stores'
+              ]}
+              highlighted
+            />
+            <PricingCard
+              title="Enterprise"
+              price="Custom"
+              features={[
+                'Unlimited products',
+                'Custom features',
+                '24/7 support',
+                'Unlimited stores'
+              ]}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 border-t border-gray-800">
+        <div className="max-w-6xl mx-auto text-center text-gray-400">
+          <p>© 2024 NLP Search. All rights reserved.</p>
+        </div>
       </footer>
     </div>
+  );
+}
+
+function FeatureCard({ icon, title, description }: FeatureCardProps) {
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="bg-gray-800 p-6 rounded-lg"
+    >
+      <div className="text-purple-400 mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      <p className="text-gray-400">{description}</p>
+    </motion.div>
+  );
+}
+
+function PricingCard({ title, price, features, highlighted = false }: PricingCardProps) {
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className={`p-6 rounded-lg ${
+        highlighted
+          ? 'bg-gradient-to-b from-purple-500 to-blue-500'
+          : 'bg-gray-800'
+      }`}
+    >
+      <h3 className="text-2xl font-bold mb-2">{title}</h3>
+      <div className="text-4xl font-bold mb-6">{price}</div>
+      <ul className="space-y-3">
+        {features.map((feature: string, index: number) => (
+          <li key={index} className="flex items-center">
+            <span className="mr-2">✓</span>
+            {feature}
+          </li>
+        ))}
+      </ul>
+      <button
+        className={`mt-6 w-full py-2 rounded ${
+          highlighted
+            ? 'bg-white text-purple-500'
+            : 'bg-purple-500 text-white'
+        }`}
+      >
+        Get Started
+      </button>
+    </motion.div>
   );
 }
