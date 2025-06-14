@@ -3,7 +3,7 @@
   // Default configuration
   const defaultConfig = {
     apiKey: null,
-    apiEndpoint: 'https://nextjs-nlps-back.vercel.app/api/search',
+    apiEndpoint: 'https://nlps2-h4pe9d6vr-mattlasscodes-projects.vercel.app/api/search',
     container: 'nlp-search-container',
     position: 'top', // 'top', 'bottom', or 'custom'
     customSelector: null, // CSS selector for custom position
@@ -44,6 +44,18 @@
     onSelect: null
   };
 
+  // Get API key from script URL
+  function getApiKey() {
+    const scripts = document.getElementsByTagName('script');
+    for (let script of scripts) {
+      if (script.src.includes('embed.js')) {
+        const url = new URL(script.src);
+        return url.searchParams.get('apiKey');
+      }
+    }
+    return null;
+  }
+
   // Create global namespace
   window.NLPSearch = {
     // Track initialization state
@@ -68,7 +80,7 @@
 
       // Validate required config
       if (!this._config.apiKey) {
-        this._handleError('API key is required');
+        console.error('NLP Search: API key is required');
         return;
       }
 
@@ -82,7 +94,7 @@
           this._config.onInit();
         }
       } catch (error) {
-        this._handleError('Failed to initialize: ' + error.message);
+        console.error('NLP Search: Failed to initialize:', error);
       }
     },
 
@@ -183,7 +195,12 @@
         const results = await response.json();
         this._displayResults(results);
       } catch (error) {
-        this._handleError('Search failed: ' + error.message);
+        console.error('Search error:', error);
+        this._results.innerHTML = `
+          <div class="p-4 text-red-500">
+            An error occurred while searching. Please try again.
+          </div>
+        `;
       } finally {
         this._loading.style.display = 'none';
       }
@@ -245,4 +262,10 @@
       }
     }
   };
+
+  // Auto-initialize if apiKey is present in script URL
+  const apiKey = getApiKey();
+  if (apiKey) {
+    window.NLPSearch.init({ apiKey });
+  }
 })(); 
