@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { FaSearch, FaCode, FaRocket, FaShieldAlt } from 'react-icons/fa';
 import { VisualEffect } from '../components/VisualEffects';
 import Link from 'next/link';
+import Head from 'next/head';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -31,6 +32,21 @@ export default function Home() {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  // Animated hero text
+  const [heroTextIndex, setHeroTextIndex] = useState(0);
+  const heroPhrases = [
+    'AI-powered search for your store',
+    'Natural language, instant results',
+    'Plug-and-play, no code required',
+    'Delight your customers with Fetchbar',
+  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroTextIndex((i) => (i + 1) % heroPhrases.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
   // Change effect every 5 seconds
   useEffect(() => {
     const effects = ['liquid', 'dream', 'psywave', 'inkstorm', 'flame', 'spectral', 'biolume', 'neuron', 'organic', 'synaptic'] as const;
@@ -42,42 +58,52 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+      <Head>
+        <title>Fetchbar</title>
+        <meta name="description" content="Fetchbar: AI-powered search for e-commerce" />
+      </Head>
       <VisualEffect type={currentEffect} />
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 mix-blend-multiply animate-gradient-x" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent animate-pulse" />
         </div>
-        
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center px-4"
         >
-          <h1 className="text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-            NLP Search
+          <h1 className="text-6xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400 drop-shadow-lg">
+            Fetchbar
           </h1>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Transform your e-commerce search with AI-powered natural language processing
-          </p>
+          <motion.p
+            key={heroTextIndex}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.5 }}
+            className="text-2xl text-gray-200 mb-8 max-w-2xl mx-auto min-h-[2.5rem]"
+          >
+            {heroPhrases[heroTextIndex]}
+          </motion.p>
           <div className="flex gap-4 justify-center">
             <Link href="/subscribe">
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, boxShadow: '0 0 16px #a78bfa' }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold"
+                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-shadow"
               >
                 Get Started
               </motion.button>
             </Link>
             <Link href="https://nextjs-nlps-front.vercel.app" target="_blank">
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, boxShadow: '0 0 16px #818cf8' }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-colors"
+                className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-full font-semibold border border-white/20 hover:bg-white/20 transition-colors shadow-lg"
               >
                 View Demo
               </motion.button>
@@ -92,22 +118,22 @@ export default function Home() {
           <h2 className="text-4xl font-bold text-center mb-16">Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <FeatureCard
-              icon={<FaSearch className="w-8 h-8" />}
+              icon={<FaSearch className="w-8 h-8 animate-bounce" />}
               title="Natural Language Search"
               description="Let your customers search using everyday language"
             />
             <FeatureCard
-              icon={<FaCode className="w-8 h-8" />}
+              icon={<FaCode className="w-8 h-8 animate-spin-slow" />}
               title="Easy Integration"
               description="One line of code to add powerful search to your store"
             />
             <FeatureCard
-              icon={<FaRocket className="w-8 h-8" />}
+              icon={<FaRocket className="w-8 h-8 animate-pulse" />}
               title="Lightning Fast"
               description="Instant results with vector-based search"
             />
             <FeatureCard
-              icon={<FaShieldAlt className="w-8 h-8" />}
+              icon={<FaShieldAlt className="w-8 h-8 animate-wiggle" />}
               title="Secure & Reliable"
               description="Enterprise-grade security and 99.9% uptime"
             />
@@ -119,7 +145,13 @@ export default function Home() {
       <section className="py-20 px-4 bg-gray-900">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-16">Get Started in Minutes</h2>
-          <div className="bg-gray-800 p-6 rounded-lg">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+            className="bg-gray-800 p-6 rounded-lg shadow-xl"
+          >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold">Embed Code</h3>
               <button
@@ -132,7 +164,7 @@ export default function Home() {
             <pre className="bg-gray-900 p-4 rounded overflow-x-auto">
               <code className="text-gray-300">{embedCode}</code>
             </pre>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -187,69 +219,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Test Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-              Try It Now
-            </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Test the NLP Search on your website instantly
-            </p>
-          </div>
-
-          <div className="mt-12 max-w-xl mx-auto">
-            <div className="bg-white shadow sm:rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="storeUrl" className="block text-sm font-medium text-gray-700">
-                      Your Store URL
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="storeUrl"
-                        id="storeUrl"
-                        placeholder="https://your-store.com"
-                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const url = (document.getElementById('storeUrl') as HTMLInputElement).value;
-                        if (!url) {
-                          alert('Please enter your store URL');
-                          return;
-                        }
-                        const proxyUrl = `${window.location.origin}/api/proxy?url=${encodeURIComponent(url)}&apiKey=test-key`;
-                        window.open(proxyUrl, '_blank');
-                      }}
-                      className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Test Search Bar
-                    </button>
-                  </div>
-
-                  <p className="text-sm text-gray-500">
-                    Enter your store URL and click the button to see the search bar in action. No installation required!
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Testimonials Section */}
+      <section className="py-20 px-4 bg-gradient-to-r from-blue-900/60 to-purple-900/60">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16">What Our Users Say</h2>
+          <TestimonialCarousel />
         </div>
       </section>
 
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-gray-800">
         <div className="max-w-6xl mx-auto text-center text-gray-400">
-          <p>© 2024 NLP Search. All rights reserved.</p>
+          <p>© 2024 Fetchbar. All rights reserved.</p>
         </div>
       </footer>
     </div>
@@ -298,6 +279,50 @@ function PricingCard({ title, price, features, highlighted = false }: PricingCar
       >
         Get Started
       </button>
+    </motion.div>
+  );
+}
+
+function TestimonialCarousel() {
+  const testimonials = [
+    {
+      name: 'Alice, Bookstore Owner',
+      text: 'Fetchbar made it so easy for my customers to find exactly what they want. Integration was a breeze!',
+    },
+    {
+      name: 'Bob, Electronics Retailer',
+      text: 'The natural language search is a game changer. Our conversion rates went up 20% after adding Fetchbar.',
+    },
+    {
+      name: 'Carla, Fashion Store',
+      text: 'I love how fast and accurate the search is. The animated visuals are a nice touch too!',
+    },
+  ];
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((i) => (i + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.7 }}
+      className="text-center"
+    >
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.5 }}
+        className="bg-gray-800 p-8 rounded-lg shadow-lg inline-block max-w-xl"
+      >
+        <p className="text-lg text-gray-200 mb-4">“{testimonials[index].text}”</p>
+        <p className="text-purple-400 font-semibold">{testimonials[index].name}</p>
+      </motion.div>
     </motion.div>
   );
 }
