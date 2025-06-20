@@ -37,4 +37,56 @@ model Product {
 
   @@unique([title, url])
   @@index([storeId])
+}
+
+model Listing {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Basic listing info
+  title       String
+  description String
+  price       Float
+  location    String
+  address     String
+  
+  // Property details
+  bedrooms    Int
+  bathrooms   Float
+  squareFeet  Int
+  propertyType String
+  
+  // Images and analysis
+  images      Image[]
+  
+  // Search vectors
+  textVector  Float[]  // Vector for text search
+  imageVector Float[]  // Vector for image search
+  
+  // Metadata
+  features    String[] // Array of features
+  style       String   // Architectural style
+  condition   String   // Property condition
+}
+
+model Image {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  
+  // Image details
+  url         String
+  altText     String?
+  
+  // Analysis results
+  style       String?  // Modern, traditional, etc.
+  colors      String[] // Dominant colors
+  features    String[] // Detected features
+  roomType    String?  // Kitchen, bathroom, etc.
+  brightness  Float?   // Brightness score
+  vector      Float[]  // Image embedding vector
+  
+  // Relations
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  listingId   String
 } 

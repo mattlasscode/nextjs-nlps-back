@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
-// Force redeploy: trivial comment for Vercel cache busting
-
+// Proxy route for preview and customization purposes
 export async function GET(request: NextRequest) {
   try {
     // Get the target URL from the query parameters
@@ -17,8 +16,6 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Missing API key', { status: 400 });
     }
 
-    console.log('Proxying request to:', targetUrl);
-
     // Fetch the target website
     const response = await fetch(targetUrl, {
       headers: {
@@ -27,12 +24,10 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error('Target website returned error:', response.status);
       return new NextResponse(`Target website returned error: ${response.status}`, { status: response.status });
     }
 
     const html = await response.text();
-    console.log('Successfully fetched target website');
 
     // Inject our search bar script
     const searchBarScript = `
@@ -41,7 +36,6 @@ export async function GET(request: NextRequest) {
 
     // Insert the script before the closing body tag
     const modifiedHtml = html.replace('</body>', `${searchBarScript}</body>`);
-    console.log('Successfully injected search bar script');
 
     // Return the modified HTML with CORS headers
     return new NextResponse(modifiedHtml, {
@@ -54,7 +48,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Proxy error:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

@@ -3,10 +3,10 @@
   // Default configuration
   const defaultConfig = {
     apiKey: null,
-    apiEndpoint: 'https://nlps2-h4pe9d6vr-mattlasscodes-projects.vercel.app/api/search',
+    apiEndpoint: 'https://your-domain.com/api/search',
     container: 'nlp-search-container',
     position: 'top',
-    placeholder: 'Search products...',
+    placeholder: 'Search properties...',
     minChars: 2,
     debounceMs: 300,
     maxResults: 10,
@@ -40,19 +40,8 @@
         zIndex: 10000,
         marginTop: '2px',
       },
-      loading: {
-        padding: '12px',
-        textAlign: 'center',
-        color: '#888',
-        fontSize: '15px',
-      },
-      error: {
-        padding: '12px',
-        textAlign: 'center',
-        color: '#d32f2f',
-        fontSize: '15px',
-      },
       resultItem: {
+        display: 'flex',
         padding: '12px',
         borderBottom: '1px solid #eee',
         cursor: 'pointer',
@@ -62,20 +51,34 @@
       resultItemHover: {
         background: '#f5f5f5',
       },
+      image: {
+        width: '80px',
+        height: '80px',
+        objectFit: 'cover',
+        borderRadius: '4px',
+        marginRight: '12px',
+      },
+      content: {
+        flex: 1,
+      },
       title: {
         fontWeight: 'bold',
         fontSize: '16px',
-        marginBottom: '2px',
-      },
-      description: {
-        fontSize: '14px',
-        color: '#555',
-        marginBottom: '2px',
+        marginBottom: '4px',
       },
       price: {
-        fontSize: '15px',
-        color: '#222',
-        fontWeight: '500',
+        fontSize: '18px',
+        color: '#2c5282',
+        marginBottom: '4px',
+      },
+      location: {
+        fontSize: '14px',
+        color: '#666',
+      },
+      features: {
+        fontSize: '12px',
+        color: '#888',
+        marginTop: '4px',
       }
     }
   };
@@ -106,7 +109,6 @@
     _container: null,
     _input: null,
     _results: null,
-    _loading: null,
     _debounceTimer: null,
 
     init: function(config) {
@@ -114,11 +116,17 @@
         console.warn('NLP Search: Already initialized');
         return;
       }
+
       this._config = { ...defaultConfig, ...config };
+      if (!this._config.apiKey) {
+        this._config.apiKey = getApiKey();
+      }
+
       if (!this._config.apiKey) {
         console.error('NLP Search: API key is required');
         return;
       }
+
       this._createElements();
       this._setupEventListeners();
       this._initialized = true;
@@ -129,43 +137,46 @@
       this._container = document.createElement('div');
       this._container.id = this._config.container;
       applyStyles(this._container, this._config.styles.container);
-      // Insert at top of body
-      document.body.insertBefore(this._container, document.body.firstChild);
 
       // Create input
       this._input = document.createElement('input');
       this._input.type = 'text';
       this._input.placeholder = this._config.placeholder;
-      this._input.autocomplete = 'off';
       applyStyles(this._input, this._config.styles.input);
-      this._container.appendChild(this._input);
 
       // Create results container
       this._results = document.createElement('div');
-      this._results.style.display = 'none';
       applyStyles(this._results, this._config.styles.results);
+      this._results.style.display = 'none';
+
+      // Assemble
+      this._container.appendChild(this._input);
       this._container.appendChild(this._results);
 
-      // Create loading indicator
-      this._loading = document.createElement('div');
-      this._loading.innerText = 'Searching...';
-      this._loading.style.display = 'none';
-      applyStyles(this._loading, this._config.styles.loading);
-      this._container.appendChild(this._loading);
+      // Insert into page
+      const target = document.querySelector(this._config.position === 'top' ? 'body' : 'footer');
+      if (target) {
+        target.insertBefore(this._container, target.firstChild);
+      }
     },
 
     _setupEventListeners: function() {
+      // Input event
       this._input.addEventListener('input', (e) => {
         clearTimeout(this._debounceTimer);
+        const query = e.target.value;
+
+        if (query.length < this._config.minChars) {
+          this._results.style.display = 'none';
+          return;
+        }
+
         this._debounceTimer = setTimeout(() => {
-          const query = e.target.value.trim();
-          if (query.length >= this._config.minChars) {
-            this._searchProducts(query);
-          } else {
-            this._results.style.display = 'none';
-          }
+          this._search(query);
         }, this._config.debounceMs);
       });
+
+      // Click outside to close
       document.addEventListener('click', (e) => {
         if (!this._container.contains(e.target)) {
           this._results.style.display = 'none';
@@ -173,74 +184,96 @@
       });
     },
 
-    async _searchProducts(query) {
+    _search: async function(query) {
       try {
-        this._loading.style.display = 'block';
-        this._results.style.display = 'none';
-        this._results.innerHTML = '';
         const response = await fetch(this._config.apiEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-API-Key': this._config.apiKey
+            'Authorization': `Bearer ${this._config.apiKey}`
           },
           body: JSON.stringify({ query })
         });
+
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error('Search failed');
         }
-        const results = await response.json();
-        this._displayResults(results);
+
+        const data = await response.json();
+        this._displayResults(data.results);
       } catch (error) {
-        this._results.innerHTML = '';
-        const errorDiv = document.createElement('div');
-        applyStyles(errorDiv, this._config.styles.error);
-        errorDiv.innerText = 'An error occurred while searching. Please try again.';
-        this._results.appendChild(errorDiv);
+        console.error('NLP Search error:', error);
+        this._results.innerHTML = '<div style="padding: 12px; color: #d32f2f;">Search failed. Please try again.</div>';
         this._results.style.display = 'block';
-      } finally {
-        this._loading.style.display = 'none';
       }
     },
 
-    _displayResults(results) {
+    _displayResults: function(results) {
       this._results.innerHTML = '';
-      if (!results || results.length === 0) {
-        const noResults = document.createElement('div');
-        applyStyles(noResults, this._config.styles.loading);
-        noResults.innerText = 'No results found';
-        this._results.appendChild(noResults);
-      } else {
-        results.slice(0, this._config.maxResults).forEach(result => {
-          const resultItem = document.createElement('div');
-          applyStyles(resultItem, this._config.styles.resultItem);
-          resultItem.onmouseenter = () => applyStyles(resultItem, { background: '#f5f5f5' });
-          resultItem.onmouseleave = () => applyStyles(resultItem, { background: 'white' });
-          resultItem.innerHTML = `
-            <div style="${styleString(this._config.styles.title)}">${result.title || ''}</div>
-            <div style="${styleString(this._config.styles.description)}">${result.description || ''}</div>
-            <div style="${styleString(this._config.styles.price)}">${result.price || ''}</div>
-          `;
-          resultItem.addEventListener('click', () => {
-            if (result.url) {
-              window.location.href = result.url;
-            }
-          });
-          this._results.appendChild(resultItem);
-        });
+      
+      if (!results.length) {
+        this._results.innerHTML = '<div style="padding: 12px; color: #666;">No results found</div>';
+        this._results.style.display = 'block';
+        return;
       }
+
+      results.slice(0, this._config.maxResults).forEach(result => {
+        const item = document.createElement('div');
+        applyStyles(item, this._config.styles.resultItem);
+
+        const image = document.createElement('img');
+        image.src = result.images[0]?.url || 'placeholder.jpg';
+        applyStyles(image, this._config.styles.image);
+
+        const content = document.createElement('div');
+        applyStyles(content, this._config.styles.content);
+
+        const title = document.createElement('div');
+        title.textContent = result.title;
+        applyStyles(title, this._config.styles.title);
+
+        const price = document.createElement('div');
+        price.textContent = `$${result.price.toLocaleString()}`;
+        applyStyles(price, this._config.styles.price);
+
+        const location = document.createElement('div');
+        location.textContent = result.location;
+        applyStyles(location, this._config.styles.location);
+
+        const features = document.createElement('div');
+        features.textContent = `${result.bedrooms} bed • ${result.bathrooms} bath • ${result.squareFeet} sqft`;
+        applyStyles(features, this._config.styles.features);
+
+        content.appendChild(title);
+        content.appendChild(price);
+        content.appendChild(location);
+        content.appendChild(features);
+
+        item.appendChild(image);
+        item.appendChild(content);
+
+        item.addEventListener('click', () => {
+          window.location.href = result.url;
+        });
+
+        item.addEventListener('mouseover', () => {
+          applyStyles(item, this._config.styles.resultItemHover);
+        });
+
+        item.addEventListener('mouseout', () => {
+          applyStyles(item, this._config.styles.resultItem);
+        });
+
+        this._results.appendChild(item);
+      });
+
       this._results.style.display = 'block';
     }
   };
 
-  // Helper to convert style object to inline style string
-  function styleString(styleObj) {
-    return Object.entries(styleObj).map(([k, v]) => `${k}:${v}`).join(';');
-  }
-
-  // Auto-initialize if apiKey is present in script URL
-  const apiKey = getApiKey();
-  if (apiKey) {
-    window.NLPSearch.init({ apiKey });
+  // Auto-initialize if script has data-init attribute
+  const script = document.currentScript;
+  if (script && script.hasAttribute('data-init')) {
+    window.NLPSearch.init();
   }
 })(); 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
 interface Plan {
   id: string;
@@ -168,6 +169,12 @@ export default function Subscribe() {
         {step === 3 && (
           <SuccessStep apiKey={apiKey} storeUrl={storeUrl} />
         )}
+
+        <Link href="/admin/data-upload">
+          <button className="mt-8 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+            Go to Data Upload (Admin)
+          </button>
+        </Link>
       </div>
     </div>
   );
